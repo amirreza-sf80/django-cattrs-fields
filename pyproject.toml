@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-cattrs-fields"
+version = "0.0.1"
+description = "django data type support for cattrs"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [
+    {name = "amirreza",email = "amir.rsf1380@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Internet :: WWW/HTTP",
+]
+
+dependencies = [
+    "cattrs>=25.3.0",
+    "django>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "django-cmd>=3.0",
+    "django-stubs>=5.2.8",
+]
+ipython = [
+    "ipython>=9.8.0",
+]
+prek = [
+    "prek>=0.2.25",
+]
+test = [
+    "pytest>=9.0.2",
+    "pytest-django>=4.11.1",
+    "pytest-randomly>=4.0.1",
+]
+
+
+[tool.django]
+settings = "conf.settings"
+pythonpath = "tests"
+
+
+[tool.django-stubs]
+django_settings_module = "tests.conf.settings"
+
+
+[tool.ruff.lint]
+select = ["E", "F", "DJ", "S", "D101"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403"]
+"**/{migrations}/*" = ["F401", "E501", "D101"]
+"tests/*" = ["S101", "D101"]
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.conf.settings"
+pythonpath = ['.', 'django_cattrs_fields']
