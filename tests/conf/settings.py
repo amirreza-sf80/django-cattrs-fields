@@ -13,4 +13,4 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
 ]
 
-USE_TZ = False
+USE_TZ = True
