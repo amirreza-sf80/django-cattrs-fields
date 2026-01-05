@@ -36,10 +36,38 @@ dependencies = [
     "django>=6.0",
 ]
 
+[project.optional-dependencies]
+
+bson = [
+    "pymongo>=4.4.0",
+]
+cbor2 = [
+    "cbor2>=5.4.6",
+]
+msgpack = [
+    "msgpack>=1.0.5",
+]
+msgspec = [
+    "msgspec>=0.19.0; implementation_name == \"cpython\"",
+]
+orjson = [
+    "orjson>=3.11.3; implementation_name == \"cpython\"",
+]
+pyyaml = [
+    "PyYAML>=6.0",
+]
+tomlkit = [
+    "tomlkit>=0.11.8",
+]
+ujson = [
+    "ujson>=5.10.0",
+]
+
 [dependency-groups]
 dev = [
     "django-cmd>=3.0",
     "django-stubs>=5.2.8",
+    "ruff>=0.14.10",
 ]
 ipython = [
     "ipython>=9.8.0",
@@ -48,9 +76,17 @@ prek = [
     "prek>=0.2.25",
 ]
 test = [
+    "cbor2>=5.4.6",
+    "msgpack>=1.0.5",
+    "msgspec>=0.19.0; implementation_name == \"cpython\"",
+    "orjson>=3.11.3; implementation_name == \"cpython\"",
+    "pymongo>=4.4.0",  # bson
     "pytest>=9.0.2",
     "pytest-django>=4.11.1",
     "pytest-randomly>=4.0.1",
+    "pyyaml>=6.0.3",
+    "tomlkit>=0.11.8",
+    "ujson>=5.10.0",
 ]
 
 
@@ -64,7 +100,13 @@ django_settings_module = "tests.conf.settings"
 
 
 [tool.ruff.lint]
-select = ["E", "F", "DJ", "S", "D101"]
+select = [
+    "E", # pycodestyle
+    "F", # Pyflakes
+    "DJ", # flake8-django
+    "S", # flake8-bandit
+    "D101" # undocumented-public-class
+]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403"]
