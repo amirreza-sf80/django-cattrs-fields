@@ -18,6 +18,7 @@ this project is the first step of many, it is intendened to be minimal, only add
 * FloatField
 * DateField
 * DateTimeField
+* FileField
 
 
 ### installing
@@ -39,6 +40,8 @@ from datetime import date, datetime
 
 from attrs import define
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from django-cattrs-fields.converters import converter
 from django_cattrs_fields.fields import (
   BooleanField, 
@@ -52,6 +55,7 @@ from django_cattrs_fields.fields import (
   DateField,
   DateTimeField
 )
+from django_cattrs_fields.fields.files import FileField
 
 @define
 class Human:
@@ -64,6 +68,7 @@ class Human:
     salary: FloatField
     birth_date: DateField
     signup_date: DateTimeField
+    picture: FileFIeld
 
 
 human = {
@@ -76,6 +81,7 @@ human = {
     "salary": 1000.43,
     "birth_date": date(year=2000, month=7, day=3),
     "signup_date": datetime.now()
+    "picture": SimpleUploadedFile(name="test_image.jpeg", content=b"wheeee", content_type="image/jpeg")
 }
 
 structure = converter.structure(human, Human)  # runs structure hooks and validators, then creates an instance of `Human`
@@ -102,7 +108,7 @@ clean_data = serializer.validated_data
 content = JSONRenderer().render(serializer.data)
 ```
 
-the cattrs equivelent of forms is like this:
+the cattrs equivalent of forms is like this:
 ```py
 try:
     form = converter.structure(data, MyForm)
@@ -242,6 +248,21 @@ but to add any custom validators you can use attrs [built-in](https://www.attrs.
 note that the validations we run are baked in structure hooks, so they will run in any situation.
 these are validations that django also runs every time you use it's data fields.
 if you need to turn this of, just create a [new converter](https://catt.rs/en/stable/basics.html#converters-and-hooks)
+
+### File Handling
+this package comes with FileField you can use to work with files.
+when an uploaded file is passed to this filed (e.g: user POSTs some file), it goes through validation, then an instance of django's `UploadedFile` is returned (usually a subclass of UploadedFile is used list InMemoryUploadedFile).
+
+you can save this using the ORM or any other way you do with django.
+
+when serving a File (e.g: user sends a GET request), an instance of django's `FieldFile` should be passed (django ORM does this automatically)
+in this case our hooks will return the url of the file.
+
+note that this behavior is different in django and DRF
+django returns the whole `FieldFile` object (could be useful with templates), DRF is configurable, it either returns the url or the file name.
+
+if you require a different behaviour, you can change this by hooking your logic and set `DCF_FILE_HOOKS` to False in your settings file.
+
 
 
 ## contribution
