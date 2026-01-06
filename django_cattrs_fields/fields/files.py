@@ -6,4 +6,4 @@ from django.core.files.uploadedfile import (
     TemporaryUploadedFile,
 )
 
-type FileField = Union[InMemoryUploadedFile, TemporaryUploadedFile, SimpleUploadedFile]
+type FileField = Union[InMemoryUploadedFile, TemporaryUploadedFile, SimpleUploadedFile, str]
