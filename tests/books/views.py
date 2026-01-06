@@ -7,7 +7,7 @@ import attrs
 
 from django_cattrs_fields.converters import converter
 from django_cattrs_fields.converters.json import converter as json_converter
-from django_cattrs_fields.fields.file import FileField
+from django_cattrs_fields.fields.files import FileField
 
 from .models import Book
 
@@ -36,9 +36,7 @@ def view(request: HttpRequest) -> HttpResponseBase:
         data = converter.unstructure(structured_data)
 
         if not isinstance(data["pdf"], UploadedFile):
-            return HttpResponseBadRequest(
-                "not instance of UploadedFile after unstructure"
-            )
+            return HttpResponseBadRequest("not instance of UploadedFile after unstructure")
 
         return HttpResponse("done")
 

@@ -1,6 +1,7 @@
 from .bool_hooks import *
 from .char_hooks import *
 from .date_hooks import *
+from .file_hooks import *
 from .number_hooks import *
 
 # ruff: noqa: F405
@@ -21,6 +22,9 @@ __all__ = (
     "email_structure",
     "email_structure_nullable",
     "email_unstructure",
+    "file_structure",
+    "file_structure_nullable",
+    "file_unstructure",
     "float_structure",
     "float_structure_nullable",
     "float_unstructure",

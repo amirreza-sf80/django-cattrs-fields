@@ -2,6 +2,8 @@ from typing import Union
 
 from cattrs.converters import Converter
 
+from django.conf import settings
+
 from django_cattrs_fields.fields import (
     BooleanField,
     CharField,
@@ -14,6 +16,7 @@ from django_cattrs_fields.fields import (
     URLField,
     UUIDField,
 )
+from django_cattrs_fields.fields.files import FileField
 from django_cattrs_fields.hooks import (
     boolean_structure,
     boolean_structure_nullable,
@@ -30,6 +33,9 @@ from django_cattrs_fields.hooks import (
     email_structure,
     email_structure_nullable,
     email_unstructure,
+    file_structure,
+    file_structure_nullable,
+    file_unstructure,
     float_structure,
     float_structure_nullable,
     float_unstructure,
@@ -61,22 +67,22 @@ def register_structure_hooks(converter: Converter):
     converter.register_structure_hook(UUIDField, uuid_structure)
 
     # Union types
-    converter.register_structure_hook(
-        Union[BooleanField, None], boolean_structure_nullable
-    )
+    converter.register_structure_hook(Union[BooleanField, None], boolean_structure_nullable)
     converter.register_structure_hook(Union[CharField, None], char_structure_nullable)
     converter.register_structure_hook(Union[DateField, None], date_structure_nullable)
-    converter.register_structure_hook(
-        Union[DateTimeField, None], datetime_structure_nullable
-    )
+    converter.register_structure_hook(Union[DateTimeField, None], datetime_structure_nullable)
     converter.register_structure_hook(Union[EmailField, None], email_structure_nullable)
     converter.register_structure_hook(Union[FloatField, None], float_structure_nullable)
-    converter.register_structure_hook(
-        Union[IntegerField, None], integer_structure_nullable
-    )
+    converter.register_structure_hook(Union[IntegerField, None], integer_structure_nullable)
     converter.register_structure_hook(Union[SlugField, None], slug_structure_nullable)
     converter.register_structure_hook(Union[URLField, None], url_structure_nullable)
     converter.register_structure_hook(Union[UUIDField, None], uuid_structure_nullable)
+
+    # File
+
+    if getattr(settings, "DCF_FILE_HOOKS", True):
+        converter.register_structure_hook(FileField, file_structure)
+        converter.register_structure_hook(Union[FileField, None], file_structure_nullable)
 
 
 def register_unstructure_hooks(converter: Converter):
@@ -95,12 +101,16 @@ def register_unstructure_hooks(converter: Converter):
     converter.register_unstructure_hook(Union[BooleanField, None], boolean_unstructure)
     converter.register_unstructure_hook(Union[CharField, None], char_unstructure)
     converter.register_unstructure_hook(Union[DateField, None], date_unstructure)
-    converter.register_unstructure_hook(
-        Union[DateTimeField, None], datetime_unstructure
-    )
+    converter.register_unstructure_hook(Union[DateTimeField, None], datetime_unstructure)
     converter.register_unstructure_hook(Union[EmailField, None], email_unstructure)
     converter.register_unstructure_hook(Union[FloatField, None], float_unstructure)
     converter.register_unstructure_hook(Union[IntegerField, None], integer_unstructure)
     converter.register_unstructure_hook(Union[SlugField, None], slug_unstructure)
     converter.register_unstructure_hook(Union[URLField, None], url_unstructure)
     converter.register_unstructure_hook(Union[UUIDField, None], uuid_unstructure)
+
+    # File
+
+    if getattr(settings, "DCF_FILE_HOOKS", True):
+        converter.register_unstructure_hook(FileField, file_unstructure)
+        converter.register_unstructure_hook(Union[FileField, None], file_unstructure)
