@@ -34,12 +34,10 @@ def date_structure(val, _) -> DateField:
 
         except ValueError:
             raise ValueError(
-                f"“{val}” value has the correct format (YYYY-MM-DD) "
-                "but it is an invalid date."
+                f"“{val}” value has the correct format (YYYY-MM-DD) but it is an invalid date."
             )
         raise ValueError(
-            f"“{val}” value has an invalid date format. It must be "
-            "in YYYY-MM-DD format."
+            f"“{val}” value has an invalid date format. It must be in YYYY-MM-DD format."
         )
 
 

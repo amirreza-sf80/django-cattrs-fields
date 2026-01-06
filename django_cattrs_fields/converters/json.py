@@ -19,9 +19,7 @@ register_unstructure_hooks(converter)
 
 if getattr(settings, "DCF_SERIALIZER_HOOKS", True):
     converter.register_unstructure_hook(UUIDField, lambda x: str(x))
-    converter.register_unstructure_hook(
-        Union[UUIDField, None], lambda x: str(x) if x else None
-    )
+    converter.register_unstructure_hook(Union[UUIDField, None], lambda x: str(x) if x else None)
 
     converter.register_unstructure_hook(DateField, lambda x: x.isoformat())
     converter.register_unstructure_hook(

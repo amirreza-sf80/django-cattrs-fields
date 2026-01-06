@@ -154,9 +154,7 @@ def test_structure_invalid_null():
         "website": None,
         "unique_id": None,
     }
-    with pytest.RaisesGroup(
-        ValueError, ValueError, ValueError, ValueError, ValueError
-    ) as exp:
+    with pytest.RaisesGroup(ValueError, ValueError, ValueError, ValueError, ValueError) as exp:
         converter.structure(w, Worker)
     assert len(exp.value.exceptions) == 5
     for e in exp.value.exceptions:
@@ -229,9 +227,7 @@ def test_unstructure_nullable(name, email, slug, website, unique_id):
     assert unstructure["email"] is None or isinstance(structure.email, str)
     assert unstructure["slug"] is None or isinstance(structure.slug, str)
     assert unstructure["website"] is None or isinstance(structure.website, str)
-    assert unstructure["unique_id"] is None or isinstance(
-        structure.unique_id, uuid.UUID
-    )
+    assert unstructure["unique_id"] is None or isinstance(structure.unique_id, uuid.UUID)
 
 
 @pytest.mark.parametrize(

@@ -40,8 +40,6 @@ if getattr(settings, "DCF_SERIALIZER_HOOKS", True):
     )
 
     converter.register_structure_hook(UUIDField, bson_uuid_structure)
-    converter.register_structure_hook(
-        Union[UUIDField, None], bson_uuid_structure_nullable
-    )
+    converter.register_structure_hook(Union[UUIDField, None], bson_uuid_structure_nullable)
 
 __all__ = ("converter",)

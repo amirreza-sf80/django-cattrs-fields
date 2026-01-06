@@ -20,9 +20,7 @@ def datetime_ambiguous(dt: datetime.datetime):
     """Check whether a datetime is ambiguous. Taken from: https://pytz-deprecation-shim.readthedocs.io/en/latest/migration.html"""
     # If a datetime exists and its UTC offset changes in response to
     # changing `fold`, it is ambiguous in the zone specified.
-    return datetime_exists(dt) and (
-        dt.replace(fold=not dt.fold).utcoffset() != dt.utcoffset()
-    )
+    return datetime_exists(dt) and (dt.replace(fold=not dt.fold).utcoffset() != dt.utcoffset())
 
 
 def valid_datetime(dt: datetime.datetime):
