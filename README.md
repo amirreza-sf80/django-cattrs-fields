@@ -20,6 +20,7 @@ this project is the first step of many, it is intendened to be minimal, only add
 * DateField
 * DateTimeField
 * FileField
+* TimeField
 
 
 ### installing
@@ -55,7 +56,8 @@ from django_cattrs_fields.fields import (
   IntegerField, 
   FloatField, 
   DateField,
-  DateTimeField
+  DateTimeField,
+  TimeField,
 )
 from django_cattrs_fields.fields.files import FileField
 
@@ -72,6 +74,7 @@ class Human:
     signup_date: DateTimeField
     picture: FileField
     accurate_salary: DecimalField
+    lunch_time: TimeField
 
 
 human = {
@@ -85,7 +88,8 @@ human = {
     "birth_date": date(year=2000, month=7, day=3),
     "signup_date": datetime.now(),
     "picture": SimpleUploadedFile(name="test_image.jpeg", content=b"wheeee", content_type="image/jpeg"),
-    "accurate_salary": DecimalField("1000.43")
+    "accurate_salary": DecimalField("1000.43"),
+    "lunch_time": time(14, 30, 0),
 }
 
 structure = converter.structure(human, Human)  # runs structure hooks and validators, then creates an instance of `Human`
@@ -186,6 +190,7 @@ class Human:
     birth_date: DateField
     signup_date: DateTimeField
     accurate_salary: DecimalField
+    lunch_time: TimeField
 
 
 def get_data(request):

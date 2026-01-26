@@ -15,6 +15,7 @@ from django_cattrs_fields.fields import (
     FloatField,
     IntegerField,
     SlugField,
+    TimeField,
     URLField,
     UUIDField,
 )
@@ -51,6 +52,9 @@ from django_cattrs_fields.hooks import (
     slug_structure,
     slug_structure_nullable,
     slug_unstructure,
+    time_structure,
+    time_structure_nullable,
+    time_unstructure,
     url_structure,
     url_structure_nullable,
     url_unstructure,
@@ -73,6 +77,7 @@ def register_structure_hooks(converter: Converter):
     converter.register_structure_hook(FloatField, float_structure)
     converter.register_structure_hook(IntegerField, integer_structure)
     converter.register_structure_hook(SlugField, slug_structure)
+    converter.register_structure_hook(TimeField, time_structure)
     converter.register_structure_hook(URLField, url_structure)
     converter.register_structure_hook(UUIDField, uuid_structure)
 
@@ -86,6 +91,7 @@ def register_structure_hooks(converter: Converter):
     converter.register_structure_hook(Union[FloatField, None], float_structure_nullable)
     converter.register_structure_hook(Union[IntegerField, None], integer_structure_nullable)
     converter.register_structure_hook(Union[SlugField, None], slug_structure_nullable)
+    converter.register_structure_hook(Union[TimeField, None], time_structure_nullable)
     converter.register_structure_hook(Union[URLField, None], url_structure_nullable)
     converter.register_structure_hook(Union[UUIDField, None], uuid_structure_nullable)
 
@@ -141,9 +147,15 @@ def register_decimal_unstructure_hooks(converter: Converter):
     converter.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure)
 
 
+def register_time_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(TimeField, time_unstructure)
+    converter.register_unstructure_hook(Union[TimeField, None], time_unstructure)
+
+
 def register_all_unstructure_hooks(converter: Converter):
     register_unstructure_hooks(converter)
     register_uuid_unstructure_hooks(converter)
     register_date_unstructure_hooks(converter)
     register_datetime_unstructure_hooks(converter)
     register_decimal_unstructure_hooks(converter)
+    register_time_unstructure_hooks(converter)

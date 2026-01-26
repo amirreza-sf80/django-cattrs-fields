@@ -6,7 +6,8 @@ from cattrs.preconf.bson import make_converter
 
 from django.conf import settings
 
-from django_cattrs_fields.fields import DateField, DecimalField, UUIDField
+from django_cattrs_fields.fields import DateField, DecimalField, TimeField, UUIDField
+from django_cattrs_fields.hooks.date_hooks import time_unstructure_str
 from django_cattrs_fields.hooks.number_hooks import decimal_unstructure_str
 
 from .register_hooks import (
@@ -47,5 +48,7 @@ if getattr(settings, "DCF_SERIALIZER_HOOKS", True):
 
     converter.register_unstructure_hook(DecimalField, decimal_unstructure_str)
     converter.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure_str)
+    converter.register_unstructure_hook(TimeField, time_unstructure_str)
+    converter.register_unstructure_hook(Union[TimeField, None], time_unstructure_str)
 
 __all__ = ("converter",)

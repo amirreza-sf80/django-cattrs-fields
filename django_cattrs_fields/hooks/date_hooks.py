@@ -1,8 +1,10 @@
 import datetime
 
+from django.utils import formats
 from django.utils.dateparse import parse_date, parse_datetime
+from django.utils.translation import gettext_lazy as _
 
-from django_cattrs_fields.fields import DateField, DateTimeField
+from django_cattrs_fields.fields import DateField, DateTimeField, TimeField
 from django_cattrs_fields.utils.timezone import enforce_timezone
 from django_cattrs_fields.validators import forbid_falsy_values_validator
 
@@ -14,6 +16,10 @@ __all__ = (
     "datetime_structure",
     "datetime_structure_nullable",
     "datetime_unstructure",
+    "time_structure",
+    "time_structure_nullable",
+    "time_unstructure",
+    "time_unstructure_str",
 )
 
 # Date hooks
@@ -90,14 +96,40 @@ def datetime_structure_nullable(val, _) -> DateTimeField | None:
 def datetime_unstructure(val: DateTimeField | None) -> datetime.datetime | None:
     if val is None:
         return None
-    return datetime.datetime(
-        val.year,
-        val.month,
-        val.day,
-        hour=val.hour,
-        minute=val.minute,
-        second=val.second,
-        microsecond=val.microsecond,
-        tzinfo=val.tzinfo,
-        fold=val.fold,
-    )
+
+    return val
+
+
+# Time hooks
+
+
+def time_structure(val, _t) -> TimeField:
+    forbid_falsy_values_validator(val)
+
+    if isinstance(val, datetime.time):
+        return val
+    for format in formats.get_format_lazy("TIME_INPUT_FORMATS"):
+        try:
+            return datetime.datetime.strptime(val, format).time()
+        except (ValueError, TypeError):
+            continue
+    raise ValueError(_("Enter a valid time."))
+
+
+def time_structure_nullable(val, _) -> TimeField | None:
+    if val is None:
+        return None
+    return time_structure(val, _)
+
+
+def time_unstructure(val: TimeField | None) -> datetime.time | None:
+    if val is None:
+        return None
+
+    return val
+
+
+def time_unstructure_str(val: TimeField | None) -> str | None:
+    if val is None:
+        return None
+    return val.isoformat()

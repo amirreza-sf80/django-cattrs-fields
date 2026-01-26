@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 import json
 
 import pytest
@@ -25,7 +25,7 @@ from django_cattrs_fields.converters.orjson import converter as orjson_converter
 from django_cattrs_fields.converters.pyyaml import converter as pyyaml_converter
 from django_cattrs_fields.converters.tomlkit import converter as tomlkit_converter
 from django_cattrs_fields.converters.ujson import converter as ujson_converter
-from django_cattrs_fields.fields import DateField, DateTimeField
+from django_cattrs_fields.fields import DateField, DateTimeField, TimeField
 from django_cattrs_fields.utils.timezone import enforce_timezone
 
 
@@ -33,17 +33,23 @@ from django_cattrs_fields.utils.timezone import enforce_timezone
 class Human:
     birth: DateField
     death: DateTimeField
+    work_start: TimeField
 
 
 @define
 class HumanNullable:
     birth: DateField | None
     death: DateTimeField | None
+    work_start: TimeField | None
 
 
 def test_structure():
     d = datetime(year=2080, month=1, day=21)
-    h = {"birth": date(year=2000, month=5, day=11), "death": d}
+    h = {
+        "birth": date(year=2000, month=5, day=11),
+        "death": d,
+        "work_start": time(hour=9, minute=0, second=0),
+    }
 
     structure = converter.structure(h, Human)
 
@@ -53,12 +59,14 @@ def test_structure():
     assert structure == obj
     assert isinstance(structure.birth, date)
     assert isinstance(structure.death, datetime)
+    assert isinstance(structure.work_start, time)
 
 
 @pytest.mark.parametrize("b", [date.today(), None])
 @pytest.mark.parametrize("d", [datetime.now(), None])
-def test_structure_nullable(b, d):
-    h = {"birth": b, "death": d}
+@pytest.mark.parametrize("t", [time(hour=8), None])
+def test_structure_nullable(b, d, t):
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, HumanNullable)
 
@@ -69,37 +77,39 @@ def test_structure_nullable(b, d):
     assert structure == obj
 
 
-def test_structure_datetime_as_date_date_as_datetime():
+def test_structure_datetime_as_date_date_as_datetime_time_as_str():
     h = {
         "birth": datetime(year=2080, month=1, day=21),
         "death": date(year=2000, month=5, day=11),
+        "work_start": time(8).strftime("%H:%M:%S"),
     }
 
     structure = converter.structure(h, Human)
 
     assert isinstance(structure.birth, date)
     assert isinstance(structure.death, datetime)
+    assert isinstance(structure.work_start, time)
 
 
 def test_structure_iso_format():
     b = date(year=2000, month=5, day=11)
     d = datetime(year=2080, month=1, day=21)
-    h = {
-        "birth": b.isoformat(),
-        "death": d.isoformat(),
-    }
+    t = time(9)
+    h = {"birth": b.isoformat(), "death": d.isoformat(), "work_start": t.isoformat()}
 
     structure = converter.structure(h, Human)
 
     assert isinstance(structure.birth, date)
     assert isinstance(structure.death, datetime)
+    assert isinstance(structure.work_start, time)
     assert structure.birth == b
     assert structure.death == enforce_timezone(d)
+    assert structure.work_start == t
 
 
 def test_unstructure():
     d = datetime(year=2080, month=1, day=21)
-    h = {"birth": date(year=2000, month=5, day=11), "death": d}
+    h = {"birth": date(year=2000, month=5, day=11), "death": d, "work_start": time(8)}
 
     structure = converter.structure(h, Human)
 
@@ -109,9 +119,11 @@ def test_unstructure():
     assert unstructure == h
 
 
-@pytest.mark.parametrize("b, d", [(date.today(), None), (None, datetime.now())])
-def test_unstructure_nullable(b, d):
-    h = {"birth": b, "death": d}
+@pytest.mark.parametrize(
+    "b, d, t", [(date.today(), None, None), (None, datetime.now(), None), (None, None, time(7))]
+)
+def test_unstructure_nullable(b, d, t):
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, HumanNullable)
 
@@ -139,7 +151,8 @@ def test_unstructure_nullable(b, d):
 def test_dumps(converter, dumps):
     b = date(year=2000, month=5, day=11)
     d = datetime(year=2080, month=1, day=21)
-    h = {"birth": b, "death": d}
+    t = time(5)
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, Human)
 
@@ -161,6 +174,16 @@ def test_dumps(converter, dumps):
     }:
         h["death"] = h["death"].isoformat()
 
+    if converter in {
+        cbor2_converter,
+        ujson_converter,
+        msgpack_converter,
+        bson_converter,
+        json_converter,
+        pyyaml_converter,
+    }:
+        h["work_start"] = h["work_start"].isoformat()
+
     assert dump == dumps(h)
 
 
@@ -178,14 +201,15 @@ def test_dumps(converter, dumps):
     ],
 )
 @pytest.mark.parametrize(
-    "b, d",
+    "b, d, t",
     [
-        (date(year=2000, month=5, day=11), None),
-        (None, datetime(year=2080, month=1, day=21)),
+        (date(year=2000, month=5, day=11), None, None),
+        (None, datetime(year=2080, month=1, day=21), None),
+        (None, None, time(5, 23)),
     ],
 )
-def test_dumps_nullable(converter, dumps, b, d):
-    h = {"birth": b, "death": d}
+def test_dumps_nullable(converter, dumps, b, d, t):
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, HumanNullable)
 
@@ -213,6 +237,20 @@ def test_dumps_nullable(converter, dumps, b, d):
     ):
         h["death"] = h["death"].isoformat()
 
+    if (
+        converter
+        in {
+            msgpack_converter,
+            ujson_converter,
+            bson_converter,
+            json_converter,
+            pyyaml_converter,
+            cbor2_converter,
+        }
+        and t
+    ):
+        h["work_start"] = h["work_start"].isoformat()
+
     assert dump == dumps(h)
 
 
@@ -233,7 +271,8 @@ def test_dumps_nullable(converter, dumps, b, d):
 def test_loads(converter, dumps):
     b = date(year=2000, month=5, day=11)
     d = datetime(year=2080, month=1, day=21)
-    h = {"birth": b.isoformat(), "death": d.isoformat()}
+    t = time(13, 21)
+    h = {"birth": b.isoformat(), "death": d.isoformat(), "work_start": t.isoformat()}
 
     dump = dumps(h)
 
@@ -255,15 +294,20 @@ def test_loads(converter, dumps):
     ],
 )
 @pytest.mark.parametrize(
-    "b, d",
+    "b, d, t",
     [
-        (date(year=2000, month=5, day=11), None),
-        (None, datetime(year=2080, month=1, day=21)),
+        (date(year=2000, month=5, day=11), None, None),
+        (None, datetime(year=2080, month=1, day=21), None),
+        (None, None, time(10, 44)),
     ],
 )
-def test_loads_nullable(converter, dumps, b, d):
-    h = {"birth": b.isoformat() if b else None, "death": d.isoformat() if d else None}
-    hc = {"birth": b if b else None, "death": d if d else None}
+def test_loads_nullable(converter, dumps, b, d, t):
+    h = {
+        "birth": b.isoformat() if b else None,
+        "death": d.isoformat() if d else None,
+        "work_start": t.isoformat() if t else None,
+    }
+    hc = {"birth": b if b else None, "death": d if d else None, "work_start": t if t else None}
 
     dump = dumps(h)
 
@@ -277,7 +321,7 @@ def test_loads_nullable(converter, dumps, b, d):
     [
         pytest.param(
             bson_converter, marks=pytest.mark.xfail
-        ),  # it seems bson fails to work datetime safely
+        ),  # it seems bson fails to serializer datetime safely
         (cbor2_converter),
         (json_converter),
         (msgpack_converter),
@@ -291,7 +335,8 @@ def test_loads_nullable(converter, dumps, b, d):
 def test_dump_then_load(converter):
     b = date(year=2000, month=5, day=11)
     d = datetime(year=2080, month=1, day=21, hour=2, minute=5)
-    h = {"birth": b, "death": d}
+    t = time(5, 11, 11)
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, Human)
 
@@ -302,6 +347,7 @@ def test_dump_then_load(converter):
 
     assert load.birth == h["birth"]
     assert load.death == h["death"]
+    assert load.work_start == h["work_start"]
 
 
 @pytest.mark.parametrize(
@@ -320,14 +366,15 @@ def test_dump_then_load(converter):
     ],
 )
 @pytest.mark.parametrize(
-    "b, d",
+    "b, d, t",
     [
-        (date(year=2000, month=5, day=11), None),
-        (None, datetime(year=2080, month=1, day=21, hour=2, minute=5)),
+        (date(year=2000, month=5, day=11), None, None),
+        (None, datetime(year=2080, month=1, day=21, hour=2, minute=5), None),
+        (None, None, time(0, 1, 4)),
     ],
 )
-def test_dump_then_load_nullable(converter, b, d):
-    h = {"birth": b, "death": d}
+def test_dump_then_load_nullable(converter, b, d, t):
+    h = {"birth": b, "death": d, "work_start": t}
 
     structure = converter.structure(h, HumanNullable)
 
@@ -339,3 +386,4 @@ def test_dump_then_load_nullable(converter, b, d):
 
     assert load.birth == h["birth"]
     assert load.death == h["death"]
+    assert load.work_start == h["work_start"]

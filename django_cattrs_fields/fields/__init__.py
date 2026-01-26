@@ -41,3 +41,5 @@ type FloatField = float
 type DateField = datetime.date
 
 type DateTimeField = datetime.datetime
+
+type TimeField = datetime.time
