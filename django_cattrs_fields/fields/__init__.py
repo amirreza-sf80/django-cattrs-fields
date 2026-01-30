@@ -1,6 +1,7 @@
 import datetime
-from decimal import Decimal
 import uuid
+from decimal import Decimal
+from typing import final
 
 from attrs import frozen
 
@@ -43,3 +44,18 @@ type DateField = datetime.date
 type DateTimeField = datetime.datetime
 
 type TimeField = datetime.time
+
+
+@final
+class EmptyField:
+    """used for creating a type checker friendly sentinel for empty values
+    empty values are omitted when unstructuring, suitable for PATCH requests.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "Empty"
+
+
+Empty = EmptyField()

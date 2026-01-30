@@ -1,8 +1,8 @@
 from typing import Union, get_args
 
-from cattrs.converters import Converter
+from attrs import has
 from cattrs._compat import is_annotated
-
+from cattrs.converters import Converter
 from django.conf import settings
 
 from django_cattrs_fields.fields import (
@@ -10,8 +10,9 @@ from django_cattrs_fields.fields import (
     CharField,
     DateField,
     DateTimeField,
-    EmailField,
     DecimalField,
+    EmailField,
+    EmptyField,
     FloatField,
     IntegerField,
     SlugField,
@@ -62,6 +63,50 @@ from django_cattrs_fields.hooks import (
     uuid_structure_nullable,
     uuid_unstructure,
 )
+from django_cattrs_fields.hooks.empty_hooks import (
+    empty_bool_structure,
+    empty_bool_structure_nullable,
+    empty_bool_unstructure,
+    empty_char_structure,
+    empty_char_structure_nullable,
+    empty_char_unstructure,
+    empty_date_structure,
+    empty_date_structure_nullable,
+    empty_date_unstructure,
+    empty_datetime_structure,
+    empty_datetime_structure_nullable,
+    empty_datetime_unstructure,
+    empty_decimal_structure,
+    empty_decimal_structure_nullable,
+    empty_decimal_unstructure,
+    empty_email_structure,
+    empty_email_structure_nullable,
+    empty_email_unstructure,
+    empty_file_structure,
+    empty_file_structure_nullable,
+    empty_file_unstructure,
+    empty_float_structure,
+    empty_float_structure_nullable,
+    empty_float_unstructure,
+    empty_integer_structure,
+    empty_integer_structure_nullable,
+    empty_integer_unstructure,
+    empty_slug_structure,
+    empty_slug_structure_nullable,
+    empty_slug_unstructure,
+    empty_structure,
+    empty_time_structure,
+    empty_time_structure_nullable,
+    empty_time_unstructure,
+    empty_unstructure,
+    empty_url_structure,
+    empty_url_structure_nullable,
+    empty_url_unstructure,
+    empty_uuid_structure,
+    empty_uuid_structure_nullable,
+    empty_uuid_unstructure,
+    skip_empty,
+)
 
 
 def register_structure_hooks(converter: Converter):
@@ -74,6 +119,7 @@ def register_structure_hooks(converter: Converter):
     )
     converter.register_structure_hook(DecimalField, decimal_structure)
     converter.register_structure_hook(EmailField, email_structure)
+    converter.register_structure_hook(EmptyField, empty_structure)
     converter.register_structure_hook(FloatField, float_structure)
     converter.register_structure_hook(IntegerField, integer_structure)
     converter.register_structure_hook(SlugField, slug_structure)
@@ -95,17 +141,75 @@ def register_structure_hooks(converter: Converter):
     converter.register_structure_hook(Union[URLField, None], url_structure_nullable)
     converter.register_structure_hook(Union[UUIDField, None], uuid_structure_nullable)
 
+    # Empty Unions
+    converter.register_structure_hook(Union[BooleanField, EmptyField], empty_bool_structure)
+    converter.register_structure_hook(Union[CharField, EmptyField], empty_char_structure)
+    converter.register_structure_hook(Union[EmptyField, EmptyField], empty_email_structure)
+    converter.register_structure_hook(Union[SlugField, EmptyField], empty_slug_structure)
+    converter.register_structure_hook(Union[URLField, EmptyField], empty_url_structure)
+    converter.register_structure_hook(Union[UUIDField, EmptyField], empty_uuid_structure)
+    converter.register_structure_hook(Union[IntegerField, EmptyField], empty_integer_structure)
+    converter.register_structure_hook(Union[DecimalField, EmptyField], empty_decimal_structure)
+    converter.register_structure_hook(Union[FloatField, EmptyField], empty_float_structure)
+    converter.register_structure_hook(Union[DateField, EmptyField], empty_date_structure)
+    converter.register_structure_hook(Union[DateTimeField, EmptyField], empty_datetime_structure)
+    converter.register_structure_hook(Union[TimeField, EmptyField], empty_time_structure)
+
+    converter.register_structure_hook(
+        Union[BooleanField, EmptyField], empty_bool_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[CharField, EmptyField, None], empty_char_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[EmptyField, EmptyField, None], empty_email_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[SlugField, EmptyField, None], empty_slug_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[URLField, EmptyField, None], empty_url_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[UUIDField, EmptyField, None], empty_uuid_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[IntegerField, EmptyField, None], empty_integer_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[DecimalField, EmptyField, None], empty_decimal_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[FloatField, EmptyField, None], empty_float_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[DateField, EmptyField, None], empty_date_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[DateTimeField, EmptyField, None], empty_datetime_structure_nullable
+    )
+    converter.register_structure_hook(
+        Union[TimeField, EmptyField, None], empty_time_structure_nullable
+    )
+
     # File
 
     if getattr(settings, "DCF_FILE_HOOKS", True):
         converter.register_structure_hook(FileField, file_structure)
         converter.register_structure_hook(Union[FileField, None], file_structure_nullable)
+        converter.register_structure_hook(Union[FileField, EmptyField], empty_file_structure)
+        converter.register_structure_hook(
+            Union[FileField, EmptyField, None], empty_file_structure_nullable
+        )
 
 
 def register_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook_factory(has, skip_empty)
+
     converter.register_unstructure_hook(BooleanField, boolean_unstructure)
     converter.register_unstructure_hook(CharField, char_unstructure)
     converter.register_unstructure_hook(EmailField, email_unstructure)
+    converter.register_unstructure_hook(EmptyField, empty_unstructure)
     converter.register_unstructure_hook(FloatField, float_unstructure)
     converter.register_unstructure_hook(IntegerField, integer_unstructure)
     converter.register_unstructure_hook(SlugField, slug_unstructure)
@@ -120,11 +224,56 @@ def register_unstructure_hooks(converter: Converter):
     converter.register_unstructure_hook(Union[SlugField, None], slug_unstructure)
     converter.register_unstructure_hook(Union[URLField, None], url_unstructure)
 
+    # Empty Unions
+    converter.register_unstructure_hook(Union[BooleanField, EmptyField], empty_bool_unstructure)
+    converter.register_unstructure_hook(Union[CharField, EmptyField], empty_char_unstructure)
+    converter.register_unstructure_hook(Union[EmailField, EmptyField], empty_email_unstructure)
+    converter.register_unstructure_hook(Union[SlugField, EmptyField], empty_slug_unstructure)
+    converter.register_unstructure_hook(Union[URLField, EmptyField], empty_url_unstructure)
+    converter.register_unstructure_hook(Union[UUIDField, EmptyField], empty_uuid_unstructure)
+    converter.register_unstructure_hook(Union[IntegerField, EmptyField], empty_integer_unstructure)
+    converter.register_unstructure_hook(Union[DecimalField, EmptyField], empty_decimal_unstructure)
+    converter.register_unstructure_hook(Union[FloatField, EmptyField], empty_float_unstructure)
+    converter.register_unstructure_hook(Union[DateField, EmptyField], empty_date_unstructure)
+    converter.register_unstructure_hook(
+        Union[DateTimeField, EmptyField], empty_datetime_unstructure
+    )
+    converter.register_unstructure_hook(Union[TimeField, EmptyField], empty_time_unstructure)
+
+    converter.register_unstructure_hook(
+        Union[BooleanField, EmptyField, None], empty_bool_unstructure
+    )
+    converter.register_unstructure_hook(Union[CharField, EmptyField, None], empty_char_unstructure)
+    converter.register_unstructure_hook(
+        Union[EmailField, EmptyField, None], empty_email_unstructure
+    )
+    converter.register_unstructure_hook(Union[SlugField, EmptyField, None], empty_slug_unstructure)
+    converter.register_unstructure_hook(Union[URLField, EmptyField, None], empty_url_unstructure)
+    converter.register_unstructure_hook(Union[UUIDField, EmptyField, None], empty_uuid_unstructure)
+    converter.register_unstructure_hook(
+        Union[IntegerField, EmptyField, None], empty_integer_unstructure
+    )
+    converter.register_unstructure_hook(
+        Union[DecimalField, EmptyField, None], empty_decimal_unstructure
+    )
+    converter.register_unstructure_hook(
+        Union[FloatField, EmptyField, None], empty_float_unstructure
+    )
+    converter.register_unstructure_hook(Union[DateField, EmptyField, None], empty_date_unstructure)
+    converter.register_unstructure_hook(
+        Union[DateTimeField, EmptyField], empty_datetime_unstructure
+    )
+    converter.register_unstructure_hook(Union[TimeField, EmptyField], empty_time_unstructure)
+
     # File
 
     if getattr(settings, "DCF_FILE_HOOKS", True):
         converter.register_unstructure_hook(FileField, file_unstructure)
         converter.register_unstructure_hook(Union[FileField, None], file_unstructure)
+        converter.register_unstructure_hook(Union[FileField, EmptyField], empty_file_unstructure)
+        converter.register_unstructure_hook(
+            Union[FileField, EmptyField, None], empty_file_unstructure
+        )
 
 
 def register_uuid_unstructure_hooks(converter: Converter):
