@@ -21,7 +21,7 @@ this project is the first step of many, it is intendened to be minimal, only add
 * DateTimeField
 * FileField
 * TimeField
-
+* EmptyField
 
 ### installing
 this is not packaged to pypi yet, for using you need to clone the repository first.
@@ -270,6 +270,38 @@ the use case of params differs depending on the field, in the case of Decimal fi
 and `decimal_places` is equivalent to `decimal_places` parameter, and are used when structuring the data to validate the decimal value.
 
 like django, DecimalField's params are optional, some fields may require some params in the future.
+
+
+### EmptyField
+`EmptyField` is useful when supporting PATCH requests.
+
+if a field doesn't reviece any data and has `Empty` as it's value, it will be omitted when unstructuring.
+
+```py
+from django_cattrs_fields.fields import CharField, EmptyField, Empty
+
+@define
+class Human:
+  name: CharField 
+  age: IntegerField | EmptyField = Empty  # default to Empty, or provide Empty manually
+
+
+struct = converter.structure({"name": "bob"})
+# Human(name='bob', age=Empty)
+unstruct = converter.unstructure(struct)
+# {'name': 'bob'}
+```
+
+as you can see, since age is `Empty`, it won't be included in the resulting dictionary.
+
+at the moment, EmptyField is only supported in unions that have only one other type, tho None is also supported, so:
+
+* `CharField | EmptyField` works
+* `CharField | EmptyField | None` works
+* `CharField | IntegerField | EmptyField` doesn't work
+
+if complex types are required, register your custom hooks until we can figure out how to properly support this.
+for inspiration, you can check `django_cattrs_fields.hooks.empty_hooks` to see how other hooks are made.
 
 ### validation
 be default this package runs some validation when you are structuring your data
