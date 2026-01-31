@@ -5,9 +5,9 @@ from .register_hooks import (
     register_all_unstructure_hooks,
 )
 
-converter = make_converter()
+serializer = make_converter()
 
-register_structure_hooks(converter)
-register_all_unstructure_hooks(converter)
+register_structure_hooks(serializer)
+register_all_unstructure_hooks(serializer)
 
-__all__ = ("converter",)
+__all__ = ("serializer",)

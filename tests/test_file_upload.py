@@ -2,7 +2,7 @@ import pytest
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from django_cattrs_fields.converters.json import converter as json_converter
+from django_cattrs_fields.converters.json import serializer as json_serializer
 
 from tests.books.models import Book
 
@@ -32,6 +32,6 @@ def test_post_empty(client):
 
 def test_get_file(client, create_book):
     result = client.get("")
-    data = json_converter.loads(result.text, dict)
+    data = json_serializer.loads(result.text, dict)
     assert "pdf" in data
     assert isinstance(data["pdf"], str)

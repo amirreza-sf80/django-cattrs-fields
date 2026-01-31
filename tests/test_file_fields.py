@@ -23,15 +23,15 @@ import tomlkit
 from msgspec import json as msgspec_json
 
 from django_cattrs_fields.converters import converter
-from django_cattrs_fields.converters.bson import converter as bson_converter
-from django_cattrs_fields.converters.cbor2 import converter as cbor2_converter
-from django_cattrs_fields.converters.json import converter as json_converter
-from django_cattrs_fields.converters.msgpack import converter as msgpack_converter
-from django_cattrs_fields.converters.msgspec import converter as msgspec_converter
-from django_cattrs_fields.converters.orjson import converter as orjson_converter
-from django_cattrs_fields.converters.pyyaml import converter as pyyaml_converter
-from django_cattrs_fields.converters.tomlkit import converter as tomlkit_converter
-from django_cattrs_fields.converters.ujson import converter as ujson_converter
+from django_cattrs_fields.converters.bson import serializer as bson_serializer
+from django_cattrs_fields.converters.cbor2 import serializer as cbor2_serializer
+from django_cattrs_fields.converters.json import serializer as json_serializer
+from django_cattrs_fields.converters.msgpack import serializer as msgpack_serializer
+from django_cattrs_fields.converters.msgspec import serializer as msgspec_serializer
+from django_cattrs_fields.converters.orjson import serializer as orjson_serializer
+from django_cattrs_fields.converters.pyyaml import serializer as pyyaml_serializer
+from django_cattrs_fields.converters.tomlkit import serializer as tomlkit_serializer
+from django_cattrs_fields.converters.ujson import serializer as ujson_serializer
 from django_cattrs_fields.fields.files import FileField
 
 from tests.books.models import Book
@@ -263,15 +263,15 @@ def test_unstructure_field_file_nullable(simple_file, db, simple):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (tomlkit_converter, tomlkit.dumps),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (tomlkit_serializer, tomlkit.dumps),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 def test_dumps(db, converter, dumps, simple_file, memory_file, temp_file):
@@ -304,14 +304,14 @@ def test_dumps(db, converter, dumps, simple_file, memory_file, temp_file):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 @pytest.mark.parametrize(
@@ -352,15 +352,15 @@ def test_dumps_nullable(
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (tomlkit_converter, tomlkit.dumps),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (tomlkit_serializer, tomlkit.dumps),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 def test_loads(db, converter, dumps, simple_file, memory_file, temp_file):
@@ -388,14 +388,14 @@ def test_loads(db, converter, dumps, simple_file, memory_file, temp_file):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 @pytest.mark.parametrize(
@@ -428,15 +428,15 @@ def test_loads_nullable(
 @pytest.mark.parametrize(
     "converter",
     [
-        (bson_converter),
-        (cbor2_converter),
-        (json_converter),
-        (msgpack_converter),
-        (msgspec_converter),
-        (orjson_converter),
-        (pyyaml_converter),
-        (tomlkit_converter),
-        (ujson_converter),
+        (bson_serializer),
+        (cbor2_serializer),
+        (json_serializer),
+        (msgpack_serializer),
+        (msgspec_serializer),
+        (orjson_serializer),
+        (pyyaml_serializer),
+        (tomlkit_serializer),
+        (ujson_serializer),
     ],
 )
 def test_dumps_then_loads(db, converter, simple_file, memory_file, temp_file):
@@ -474,14 +474,14 @@ def test_dumps_then_loads(db, converter, simple_file, memory_file, temp_file):
 @pytest.mark.parametrize(
     "converter",
     [
-        (bson_converter),
-        (cbor2_converter),
-        (json_converter),
-        (msgpack_converter),
-        (msgspec_converter),
-        (orjson_converter),
-        (pyyaml_converter),
-        (ujson_converter),
+        (bson_serializer),
+        (cbor2_serializer),
+        (json_serializer),
+        (msgpack_serializer),
+        (msgspec_serializer),
+        (orjson_serializer),
+        (pyyaml_serializer),
+        (ujson_serializer),
     ],
 )
 @pytest.mark.parametrize(

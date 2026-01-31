@@ -1,11 +1,11 @@
 # django-cattrs-fields
 
-**Note**: this is a very experimental project, i'm mostly navigating and discovering how this could work,
+**Note**: this is a very experimental project, I'm mostly navigating and discovering how this could work,
 as much as any help and feedback is appreciated, please do not use in a production environment.
 
-bring [cattrs](https://github.com/python-attrs/cattrs) support to the django world.
+Brings [cattrs](https://github.com/python-attrs/cattrs) support to the django world.
 
-this project is the first step of many, it is intendened to be minimal, only adding data type support.
+this project is the first step of many, it is intended to be minimal, only adding data type support.
 
 ### current data types
 * BooleanField
@@ -23,22 +23,23 @@ this project is the first step of many, it is intendened to be minimal, only add
 * TimeField
 * EmptyField
 
-### installing
-this is not packaged to pypi yet, for using you need to clone the repository first.
+## installing
+this is not packaged to PyPI yet, for using you need to clone the repository first.
 
 then install the package by running `uv sync` or `uv sync --extra <group name>` where group name is one of optional-dependencies listed in pyproject.toml.
 
-if you want a one shot install use `uv sync --all-extras`
+if you want a one-shot install use `uv sync --all-extras`
 
 
 
-### basic usage:
+## basic usage:
 data model classes are `attrs` classes, so anything you find in [attrs](https://www.attrs.org/en/stable/index.html) docs also applies here.
 we also follow cattrs, so anything in their [docs](https://catt.rs/en/stable/index.html) also applies
 
 ```py
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, time
+from decimal import Decimal
 
 from attrs import define
 
@@ -88,7 +89,7 @@ human = {
     "birth_date": date(year=2000, month=7, day=3),
     "signup_date": datetime.now(),
     "picture": SimpleUploadedFile(name="test_image.jpeg", content=b"wheeee", content_type="image/jpeg"),
-    "accurate_salary": DecimalField("1000.43"),
+    "accurate_salary": Decimal("1000.43"),
     "lunch_time": time(14, 30, 0),
 }
 
@@ -103,7 +104,7 @@ in django forms we do:
 ```py
 form = MyForm(data)
 form.is_valid()
-clean_data = form.cleaned_data  
+clean_data = form.cleaned_data
 ```
 
 in drf we do:
@@ -119,7 +120,7 @@ content = JSONRenderer().render(serializer.data)
 the cattrs equivalent of forms is like this:
 ```py
 try:
-    form = converter.structure(data, MyForm)
+    form = converter.structure(data, MyForm)  # where `MyForm` is a cattrs supported class (usually and attrs class)
 except* ValueError:  # notice the `*`, this is an exception group (unless you configure cattrs otherwise)
     pass
 clean_data = converter.unstructure(form)
@@ -144,10 +145,11 @@ note that `converter.structure` raises `ValueError` as an exception group.
 
 
 ### serializers
-the basic converter you saw in basic usage section can only structure and unstructure, which is powerful, but we can do more
+the basic `converter` you saw in basic usage section can only structure and unstructure, which is powerful, but we can do more.
+
 `cattrs` comes with a set of [preconfigured converters](https://catt.rs/en/stable/preconf.html).
 
-we ship our own version of these converters, which extends on top of cattrs' version
+we ship our own version of these converters, which extends on top of cattrs' version, though we call them `serializer` to avoid some confusion.
 these are available in `django_cattrs_fields.converters` directory:
 
 * django_cattrs_fields.converters.bson
@@ -160,22 +162,34 @@ these are available in `django_cattrs_fields.converters` directory:
 * django_cattrs_fields.converters.tomlkit
 * django_cattrs_fields.converters.ujson
 
-just import `converter` from each of these modules
+just import `serializer` from each of these modules:
 
 ```py
-from django_cattrs_fields.converters.json import converter
+from django_cattrs_fields.converters import converter
+from django_cattrs_fields.converters.json import serializer
 
 
-structure = converter.structure(human, Human)  
-dump: str | bytes = converter.dumps(structure)  # takes an structured data, dumps a json string
-load: Human = converter.loads(structure, Human)  # takes a dumped data, and loads that as a structured data
+structure = converter.structure(human, Human)
+dump: str | bytes = serializer.dumps(structure)  # takes an structured data, dumps a json string
+load: Human = serializers.loads(dump, Human)  # takes a dumped data, and loads that as a structured data
+data = converter.unstructure(load)  # a dictionary of the data, ready to be used.
 ```
+
+it is important to note, while `serializer` objects also have `structure` and `unstructure` methods, they are considered internal API, 
+since they are configured to feed encoding and decoding functionalities, 
+they don't necessarily behave the way you would expect them to.
+
+so in most scenarios you should import a `converter` and a `serializer` to handle their specific task, unless you are fully aware how your `serializer` behaves and can handle it yourself.
+
+the only exception (currently) is the msgspec serializer, which doesn't implement any additional logic and works like a normal `converter`, 
+tho if the need arises, this could change.
 
 ### work with django views
 you can use the data models you made with this package instead of django forms or serializers
 
 ```py
-from django_cattrs_fields.converters.json import converter
+from django_cattrs_fields.converters import converter
+from django_cattrs_fields.converters.json import serializer
 
 
 @define
@@ -198,7 +212,7 @@ def get_data(request):
         if request.content_type in {"application/x-www-form-urlencoded", "multipart/form-data"}:
             structured_data = converter.structure({**request.POST.dict(), **request.FILES.dict()}, Human)  # handle html forms, and multipart data
         else:
-            structured_data = converter.loads(request.body, Human)  # handle json (or anything else)
+            structured_data = serializer.loads(request.body, Human)  # handle json (or anything else)
 
         data: dict[str, Any] = converter.unstructure(structured_data)  # a dictionary of all the POST data (excluding data not covered by Human)
 
@@ -216,7 +230,7 @@ one you unstructure your data, you have a dictionary of cleaned data.
 then you can just pass that to your model and create your data
 
 ```py
-data: dict[str, Any] = converter.unstructure(structured_data)  
+data: dict[str, Any] = converter.unstructure(structured_data)
 
 # either
 obj = HumanModel(**dict)
@@ -275,7 +289,7 @@ like django, DecimalField's params are optional, some fields may require some pa
 ### EmptyField
 `EmptyField` is useful when supporting PATCH requests.
 
-if a field doesn't reviece any data and has `Empty` as it's value, it will be omitted when unstructuring.
+if a field doesn't receive any data and has `Empty` as its value, it will be omitted when unstructuring.
 
 ```py
 from django_cattrs_fields.fields import CharField, EmptyField, Empty
@@ -294,26 +308,27 @@ unstruct = converter.unstructure(struct)
 
 as you can see, since age is `Empty`, it won't be included in the resulting dictionary.
 
-at the moment, EmptyField is only supported in unions that have only one other type, tho None is also supported, so:
+**Warning**: at the moment, `EmptyField` is only supported in unions that have only one other type, tho None is also supported, so:
 
-* `CharField | EmptyField` works
-* `CharField | EmptyField | None` works
-* `CharField | IntegerField | EmptyField` doesn't work
+* `CharField | EmptyField` works.
+* `CharField | EmptyField | None` works.
+* `CharField | IntegerField | EmptyField` doesn't work.
 
 if complex types are required, register your custom hooks until we can figure out how to properly support this.
 for inspiration, you can check `django_cattrs_fields.hooks.empty_hooks` to see how other hooks are made.
 
 ### validation
-be default this package runs some validation when you are structuring your data
-but to add any custom validators you can use attrs [built-in](https://www.attrs.org/en/stable/examples.html#validators) validation mechanisem.
+by default this package runs some validation when you are structuring your data
+but to add any custom validators you can use attrs [built-in](https://www.attrs.org/en/stable/examples.html#validators) validation mechanism.
 
 note that the validations we run are baked in structure hooks, so they will run in any situation.
 these are validations that django also runs every time you use it's data fields.
-if you need to turn this of, just create a [new converter](https://catt.rs/en/stable/basics.html#converters-and-hooks)
+if you need to turn this off, just create a [new converter](https://catt.rs/en/stable/basics.html#converters-and-hooks)
 
 ### File Handling
 this package comes with FileField you can use to work with files.
-when an uploaded file is passed to this filed (e.g: user POSTs some file), it goes through validation, then an instance of django's `UploadedFile` is returned (usually a subclass of UploadedFile is used list InMemoryUploadedFile).
+when an uploaded file is passed to this field (e.g: user POSTs some file), it goes through validation,
+then an instance of django's `UploadedFile` is returned (usually a subclass of UploadedFile is used like `InMemoryUploadedFile`).
 
 you can save this using the ORM or any other way you do with django.
 
@@ -323,23 +338,24 @@ in this case our hooks will return the url of the file.
 note that this behavior is different in django and DRF
 django returns the whole `FieldFile` object (could be useful with templates), DRF is configurable, it either returns the url or the file name.
 
-if you require a different behaviour, you can change this by hooking your logic and set `DCF_FILE_HOOKS` to False in your settings file.
+if you require a different behaviour, you can change this by hooking your logic and set `DCF_FILE_HOOKS` to False in your settings file, 
+this will disable all file related hooks.
 
 
 
 ## contribution
-I appreate any help with this project, but please follow django's code of conduct
+I appreciate any help with this project, but please follow Django's Code of Conduct
 if you have ideas or have found a bug please open an [issue on github](https://github.com/amirreza8002/django-cattrs-fields/issues/new)
 
 to help with development follow these steps:
-1. fork the repository from [github](https://github.com/amirreza8002/django-cattrs-fields)
-2. clone the project from your fork
+1. fork the repository from [github](https://github.com/amirreza8002/django-cattrs-fields).
+2. clone the project from your fork.
 3. install the package with one of the following commands:
-  * `uv sync --group dev` 
+  * `uv sync --group dev`
   * `uv sync --group dev --group ipython`
   * `uv sync --group dev --group prek`
   * `uv sync --group dev --group test`
-you can combine them together or just use `uv sync --all-groups` to one shot
+you can combine them together or just use `uv sync --all-groups` to one-shot.
 4. run `prek install` or `pre-commit install` depending on your choice.
 
 if you are contributing new code, please make sure to add some tests for it.
