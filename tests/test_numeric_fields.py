@@ -110,6 +110,32 @@ def test_structure_nullable(age, salary, accurate_salary):
 
 
 @pytest.mark.parametrize(
+    "age, salary, accurate_salary", [(None, 43.1, None), (11, None, None), (None, None, "11.4")]
+)
+def test_structure_nullable_annotated(age, salary, accurate_salary):
+    pn = {"age": age, "salary": salary, "accurate_salary": accurate_salary}
+
+    structure = converter.structure(pn, PeopleNumbersNullableAnnotated)
+    if accurate_salary:
+        pn["accurate_salary"] = Decimal(accurate_salary)
+    obj = PeopleNumbersNullableAnnotated(**pn)
+
+    assert structure == obj
+
+    assert isinstance(structure.age, int) or structure.age is None
+    assert structure.salary is salary or isinstance(structure.salary, float)
+    assert isinstance(structure.accurate_salary, Decimal) or structure.accurate_salary is None
+
+    pn["accurate_salary"] = "100.12"
+    with pytest.RaisesGroup(ValueError):
+        converter.structure(pn, PeopleNumbersNullableAnnotated)
+
+    pn["accurate_salary"] = "10.1234"
+    with pytest.RaisesGroup(ValueError):
+        converter.structure(pn, PeopleNumbersNullableAnnotated)
+
+
+@pytest.mark.parametrize(
     "age, salary, accurate_salary", [(None, 43.1, "11.4"), (11, 12.1, None), (11.3, None, "11.4")]
 )
 def test_structure_null_with_not_nullable_raises(age, salary, accurate_salary):
