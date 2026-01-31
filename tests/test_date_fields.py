@@ -16,15 +16,15 @@ import tomlkit
 from msgspec import json as msgspec_json
 
 from django_cattrs_fields.converters import converter
-from django_cattrs_fields.converters.bson import converter as bson_converter
-from django_cattrs_fields.converters.cbor2 import converter as cbor2_converter
-from django_cattrs_fields.converters.json import converter as json_converter
-from django_cattrs_fields.converters.msgpack import converter as msgpack_converter
-from django_cattrs_fields.converters.msgspec import converter as msgspec_converter
-from django_cattrs_fields.converters.orjson import converter as orjson_converter
-from django_cattrs_fields.converters.pyyaml import converter as pyyaml_converter
-from django_cattrs_fields.converters.tomlkit import converter as tomlkit_converter
-from django_cattrs_fields.converters.ujson import converter as ujson_converter
+from django_cattrs_fields.converters.bson import serializer as bson_serializer
+from django_cattrs_fields.converters.cbor2 import serializer as cbor2_serializer
+from django_cattrs_fields.converters.json import serializer as json_serializer
+from django_cattrs_fields.converters.msgpack import serializer as msgpack_serializer
+from django_cattrs_fields.converters.msgspec import serializer as msgspec_serializer
+from django_cattrs_fields.converters.orjson import serializer as orjson_serializer
+from django_cattrs_fields.converters.pyyaml import serializer as pyyaml_serializer
+from django_cattrs_fields.converters.tomlkit import serializer as tomlkit_serializer
+from django_cattrs_fields.converters.ujson import serializer as ujson_serializer
 from django_cattrs_fields.fields import DateField, DateTimeField, TimeField
 from django_cattrs_fields.utils.timezone import enforce_timezone
 
@@ -137,15 +137,15 @@ def test_unstructure_nullable(b, d, t):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (tomlkit_converter, tomlkit.dumps),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (tomlkit_serializer, tomlkit.dumps),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 def test_dumps(converter, dumps):
@@ -159,28 +159,28 @@ def test_dumps(converter, dumps):
     dump = converter.dumps(structure)
 
     if converter in {
-        json_converter,
-        msgpack_converter,
-        ujson_converter,
-        bson_converter,
+        json_serializer,
+        msgpack_serializer,
+        ujson_serializer,
+        bson_serializer,
     }:
         h["birth"] = b.isoformat()
 
     h["death"] = enforce_timezone(d)
     if converter in {
-        json_converter,
-        msgpack_converter,
-        ujson_converter,
+        json_serializer,
+        msgpack_serializer,
+        ujson_serializer,
     }:
         h["death"] = h["death"].isoformat()
 
     if converter in {
-        cbor2_converter,
-        ujson_converter,
-        msgpack_converter,
-        bson_converter,
-        json_converter,
-        pyyaml_converter,
+        cbor2_serializer,
+        ujson_serializer,
+        msgpack_serializer,
+        bson_serializer,
+        json_serializer,
+        pyyaml_serializer,
     }:
         h["work_start"] = h["work_start"].isoformat()
 
@@ -190,14 +190,14 @@ def test_dumps(converter, dumps):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 @pytest.mark.parametrize(
@@ -216,10 +216,10 @@ def test_dumps_nullable(converter, dumps, b, d, t):
     dump = converter.dumps(structure)
 
     if converter in {
-        json_converter,
-        msgpack_converter,
-        ujson_converter,
-        bson_converter,
+        json_serializer,
+        msgpack_serializer,
+        ujson_serializer,
+        bson_serializer,
     }:
         if b:
             h["birth"] = b.isoformat()
@@ -229,9 +229,9 @@ def test_dumps_nullable(converter, dumps, b, d, t):
     if (
         converter
         in {
-            json_converter,
-            msgpack_converter,
-            ujson_converter,
+            json_serializer,
+            msgpack_serializer,
+            ujson_serializer,
         }
         and d
     ):
@@ -240,12 +240,12 @@ def test_dumps_nullable(converter, dumps, b, d, t):
     if (
         converter
         in {
-            msgpack_converter,
-            ujson_converter,
-            bson_converter,
-            json_converter,
-            pyyaml_converter,
-            cbor2_converter,
+            msgpack_serializer,
+            ujson_serializer,
+            bson_serializer,
+            json_serializer,
+            pyyaml_serializer,
+            cbor2_serializer,
         }
         and t
     ):
@@ -257,15 +257,15 @@ def test_dumps_nullable(converter, dumps, b, d, t):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (tomlkit_converter, tomlkit.dumps),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (tomlkit_serializer, tomlkit.dumps),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 def test_loads(converter, dumps):
@@ -283,14 +283,14 @@ def test_loads(converter, dumps):
 @pytest.mark.parametrize(
     "converter, dumps",
     [
-        (bson_converter, bson.encode),
-        (cbor2_converter, cbor2.dumps),
-        (json_converter, json.dumps),
-        (msgpack_converter, msgpack.dumps),
-        (msgspec_converter, msgspec_json.encode),
-        (orjson_converter, orjson.dumps),
-        (pyyaml_converter, yaml.safe_dump),
-        (ujson_converter, ujson.dumps),
+        (bson_serializer, bson.encode),
+        (cbor2_serializer, cbor2.dumps),
+        (json_serializer, json.dumps),
+        (msgpack_serializer, msgpack.dumps),
+        (msgspec_serializer, msgspec_json.encode),
+        (orjson_serializer, orjson.dumps),
+        (pyyaml_serializer, yaml.safe_dump),
+        (ujson_serializer, ujson.dumps),
     ],
 )
 @pytest.mark.parametrize(
@@ -320,16 +320,16 @@ def test_loads_nullable(converter, dumps, b, d, t):
     "converter",
     [
         pytest.param(
-            bson_converter, marks=pytest.mark.xfail
+            bson_serializer, marks=pytest.mark.xfail
         ),  # it seems bson fails to serializer datetime safely
-        (cbor2_converter),
-        (json_converter),
-        (msgpack_converter),
-        (msgspec_converter),
-        (orjson_converter),
-        (pyyaml_converter),
-        (tomlkit_converter),
-        (ujson_converter),
+        (cbor2_serializer),
+        (json_serializer),
+        (msgpack_serializer),
+        (msgspec_serializer),
+        (orjson_serializer),
+        (pyyaml_serializer),
+        (tomlkit_serializer),
+        (ujson_serializer),
     ],
 )
 def test_dump_then_load(converter):
@@ -354,15 +354,15 @@ def test_dump_then_load(converter):
     "converter",
     [
         pytest.param(
-            bson_converter, marks=pytest.mark.xfail
+            bson_serializer, marks=pytest.mark.xfail
         ),  # it seems bson fails to work datetime safely
-        (cbor2_converter),
-        (json_converter),
-        (msgpack_converter),
-        (msgspec_converter),
-        (orjson_converter),
-        (pyyaml_converter),
-        (ujson_converter),
+        (cbor2_serializer),
+        (json_serializer),
+        (msgpack_serializer),
+        (msgspec_serializer),
+        (orjson_serializer),
+        (pyyaml_serializer),
+        (ujson_serializer),
     ],
 )
 @pytest.mark.parametrize(

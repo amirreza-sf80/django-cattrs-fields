@@ -6,7 +6,7 @@ from django.http.response import HttpResponse
 import attrs
 
 from django_cattrs_fields.converters import converter
-from django_cattrs_fields.converters.json import converter as json_converter
+from django_cattrs_fields.converters.json import serializer as json_serializer
 from django_cattrs_fields.fields.files import FileField
 
 from .models import Book
@@ -41,5 +41,5 @@ def view(request: HttpRequest) -> HttpResponseBase:
         return HttpResponse("done")
 
     b = Book.objects.last()
-    data = json_converter.dumps(converter.structure({"pdf": b.pdf}, BookData))
+    data = json_serializer.dumps(converter.structure({"pdf": b.pdf}, BookData))
     return HttpResponse(data)

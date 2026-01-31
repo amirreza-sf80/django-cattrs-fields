@@ -16,22 +16,22 @@ from .register_hooks import (
     register_time_unstructure_hooks,
 )
 
-converter = make_converter()
+serializer = make_converter()
 
-register_structure_hooks(converter)
+register_structure_hooks(serializer)
 
-register_unstructure_hooks(converter)
-register_date_unstructure_hooks(converter)
-register_datetime_unstructure_hooks(converter)
-register_time_unstructure_hooks(converter)
+register_unstructure_hooks(serializer)
+register_date_unstructure_hooks(serializer)
+register_datetime_unstructure_hooks(serializer)
+register_time_unstructure_hooks(serializer)
 
 if getattr(settings, "DCF_SERIALIZER_HOOKS", True):
-    converter.register_unstructure_hook(UUIDField, lambda x: str(x))
-    converter.register_unstructure_hook(Union[UUIDField, None], lambda x: str(x) if x else None)
-    converter.register_unstructure_hook(DecimalField, decimal_unstructure_str)
-    converter.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure_str)
-    converter.register_unstructure_hook(TimeField, time_unstructure_str)
-    converter.register_unstructure_hook(Union[TimeField, None], time_unstructure_str)
+    serializer.register_unstructure_hook(UUIDField, lambda x: str(x))
+    serializer.register_unstructure_hook(Union[UUIDField, None], lambda x: str(x) if x else None)
+    serializer.register_unstructure_hook(DecimalField, decimal_unstructure_str)
+    serializer.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure_str)
+    serializer.register_unstructure_hook(TimeField, time_unstructure_str)
+    serializer.register_unstructure_hook(Union[TimeField, None], time_unstructure_str)
 
 
-__all__ = ("converter",)
+__all__ = ("serializer",)
