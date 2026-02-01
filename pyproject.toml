@@ -89,6 +89,12 @@ test = [
     "ujson>=5.10.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/amirreza8002/django-cattrs-fields"
+Source = "https://github.com/amirreza8002/django-cattrs-fields"
+Issues = "https://github.com/django-commons/django-cattrs-fields/issues"
+Documentation = "https://github.com/amirreza8002/django-cattrs-fields"
+
 
 [tool.django]
 settings = "conf.settings"
