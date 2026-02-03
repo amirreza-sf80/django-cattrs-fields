@@ -3,6 +3,7 @@ from typing import Union, get_args
 from attrs import has
 from cattrs._compat import is_annotated
 from cattrs.converters import Converter
+
 from django.conf import settings
 
 from django_cattrs_fields.fields import (

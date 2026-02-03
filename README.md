@@ -1,5 +1,7 @@
 # django-cattrs-fields
 
+[![Published on Django Packages](https://img.shields.io/badge/Published%20on-Django%20Packages-0c3c26)](https://djangopackages.org/packages/p/django-cattrs-fields/)
+
 **Note**: this is a very experimental project, I'm mostly navigating and discovering how this could work,
 as much as any help and feedback is appreciated, please do not use in a production environment.
 
