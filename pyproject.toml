@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries",
     "Topic :: Internet :: WWW/HTTP",
+    "Typing :: Typed",
 ]
 
 dependencies = [
