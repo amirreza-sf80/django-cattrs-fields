@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-cattrs-fields"
-version = "0.0.1.post1"
+version = "0.0.1.post2"
 description = "django data type support for cattrs"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -91,10 +91,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/amirreza8002/django-cattrs-fields"
-Source = "https://github.com/amirreza8002/django-cattrs-fields"
-Issues = "https://github.com/django-commons/django-cattrs-fields/issues"
-Documentation = "https://github.com/amirreza8002/django-cattrs-fields"
+Homepage = "https://github.com/amirreza-sf80/django-cattrs-fields"
+Source = "https://github.com/amirreza-sf80/django-cattrs-fields"
+Issues = "https://github.com/amirreza-sf80/django-cattrs-fields/issues"
+Documentation = "https://github.com/amirreza-sf80/django-cattrs-fields"
 
 
 [tool.django]
