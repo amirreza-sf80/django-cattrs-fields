@@ -343,7 +343,7 @@ def test_dump_then_load(converter):
     dump = converter.dumps(structure)
     load = converter.loads(dump, Human)
 
-    h["death"] = enforce_timezone(h["death"])
+    h["death"] = enforce_timezone(h["death"])  # ty:ignore[invalid-argument-type]
 
     assert load.birth == h["birth"]
     assert load.death == h["death"]

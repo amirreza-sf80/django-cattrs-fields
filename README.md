@@ -99,7 +99,32 @@ structure = converter.structure(human, Human)  # runs structure hooks and valida
 normal_data = converter.unstructure(structure)  # runs unstructure hooks, then makes a dict similar to `human` (or what you tell it to), no validators run.
 ```
 
-### Comparison
+### list and querysets
+when we are working with a list of multiple objects or a queryset that would contains multiple objects, we need to tell `structure` and `unstructure` that it's working with a list
+
+```py
+@define
+class FoodData:
+    name: CharField
+    rate: IntegerField
+
+
+foods = [{"name": "pizza", "rate": 4}, {"name": "burger", "rate": 5}]
+# or
+foods = Food.objects.all()  # where Food is a django model
+
+structure = converter.structure(foods, list[FoodData])  
+unstructure = converter.unstructure(structure, list) # this will make a list[dict]
+```
+
+same logic applies to `loads`
+```py
+dump = converter.dumps(structure)
+load = converter.loads(dump, list[FoodData])
+```
+note that bson and toml don't support list serialization.
+
+## Comparison
 in comparison with how django forms and DRF serializers work, see the examples below
 
 in django forms we do:
@@ -146,7 +171,7 @@ structuring and loading also validates the data, so no need for the extra step.
 note that `converter.structure` raises `ValueError` as an exception group.
 
 
-### serializers
+## Serializers
 the basic `converter` you saw in basic usage section can only structure and unstructure, which is powerful, but we can do more.
 
 `cattrs` comes with a set of [preconfigured converters](https://catt.rs/en/stable/preconf.html).
@@ -186,7 +211,7 @@ so in most scenarios you should import a `converter` and a `serializer` to handl
 the only exception (currently) is the msgspec serializer, which doesn't implement any additional logic and works like a normal `converter`, 
 tho if the need arises, this could change.
 
-### work with django views
+## work with django views
 you can use the data models you made with this package instead of django forms or serializers
 
 ```py
@@ -227,7 +252,7 @@ note that if `POST` data contains anything not in `Human`, it won't show up in t
 also note that when working with APIs, depending on your client you might need to add `csrf_exempt` on you view.
 
 
-### saving to database
+## saving to database
 one you unstructure your data, you have a dictionary of cleaned data.
 then you can just pass that to your model and create your data
 
@@ -243,7 +268,7 @@ HumanModel.objects.create(**dict)
 ```
 
 
-### nullable fields
+## nullable fields
 by default all fields are required and passing a `None` value will raise an error
 to make a field nullable, you can use a union 
 
@@ -255,7 +280,7 @@ class Product:
 ```
 
 
-### default values
+## default values
 to add a default value, the simplest way is to just add it via assignment
 
 ```py
@@ -266,7 +291,7 @@ class Product:
 ```
 for more advanced use check [default docs](https://www.attrs.org/en/stable/examples.html#defaults)
 
-### field params
+## field params
 some fields like `DecimalField` can take some parameter about their data using `typing.Annotated`.
 
 ```py
@@ -288,7 +313,7 @@ and `decimal_places` is equivalent to `decimal_places` parameter, and are used w
 like django, DecimalField's params are optional, some fields may require some params in the future.
 
 
-### EmptyField
+## EmptyField
 `EmptyField` is useful when supporting PATCH requests.
 
 if a field doesn't receive any data and has `Empty` as its value, it will be omitted when unstructuring.
@@ -319,7 +344,7 @@ as you can see, since age is `Empty`, it won't be included in the resulting dict
 if complex types are required, register your custom hooks until we can figure out how to properly support this.
 for inspiration, you can check `django_cattrs_fields.hooks.empty_hooks` to see how other hooks are made.
 
-### validation
+## validation
 by default this package runs some validation when you are structuring your data
 but to add any custom validators you can use attrs [built-in](https://www.attrs.org/en/stable/examples.html#validators) validation mechanism.
 
@@ -327,7 +352,7 @@ note that the validations we run are baked in structure hooks, so they will run 
 these are validations that django also runs every time you use it's data fields.
 if you need to turn this off, just create a [new converter](https://catt.rs/en/stable/basics.html#converters-and-hooks)
 
-### File Handling
+## File Handling
 this package comes with FileField you can use to work with files.
 when an uploaded file is passed to this field (e.g: user POSTs some file), it goes through validation,
 then an instance of django's `UploadedFile` is returned (usually a subclass of UploadedFile is used like `InMemoryUploadedFile`).
