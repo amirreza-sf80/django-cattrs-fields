@@ -108,9 +108,11 @@ from django_cattrs_fields.hooks.empty_hooks import (
     empty_uuid_unstructure,
     skip_empty,
 )
+from django_cattrs_fields.hooks.list_hooks import list_structure_hook_factory, is_list_of_attrs
 
 
 def register_structure_hooks(converter: Converter):
+    converter.register_structure_hook_factory(is_list_of_attrs, list_structure_hook_factory)
     converter.register_structure_hook(BooleanField, boolean_structure)
     converter.register_structure_hook(CharField, char_structure)
     converter.register_structure_hook(DateField, date_structure)
