@@ -266,7 +266,6 @@ def test_loads(converter, dumps, age, salary, accurate_salary):
     dump = dumps(pn)
 
     x = converter.loads(dump, PeopleNumbers)
-    pn["accurate_salary"] = pn["accurate_salary"]
 
     pn["accurate_salary"] = Decimal(pn["accurate_salary"])
     assert x == PeopleNumbers(**pn)
