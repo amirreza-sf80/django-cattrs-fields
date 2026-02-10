@@ -1,3 +1,5 @@
+from django.forms import model_to_dict
+from django.core.files.uploadedfile import SimpleUploadedFile
 import json
 from decimal import Decimal
 
@@ -26,6 +28,9 @@ from django_cattrs_fields.converters.pyyaml import serializer as pyyaml_serializ
 from django_cattrs_fields.converters.tomlkit import serializer as tomlkit_serializer
 from django_cattrs_fields.converters.ujson import serializer as ujson_serializer
 from django_cattrs_fields.fields import CharField, DecimalField, IntegerField
+from django_cattrs_fields.fields.files import FileField
+
+from tests.books.models import Book
 
 
 @define
@@ -33,6 +38,21 @@ class Food:
     name: CharField
     price: DecimalField
     rate: IntegerField
+
+
+@define
+class BookData:
+    pdf: FileField
+
+
+@pytest.fixture
+def create_books(db):
+    for i in range(10):
+        Book.objects.create(
+            pdf=SimpleUploadedFile(
+                name=f"test_image{i}.jpeg", content=b"wheeeee", content_type="image/jpeg"
+            )
+        )
 
 
 def test_structure():
@@ -49,6 +69,15 @@ def test_structure():
     assert isinstance(structure[0], Food)
 
 
+def test_structure_model(create_books):
+    data = Book.objects.all()
+
+    structure = converter.structure(data, list[BookData])
+    man = [converter.structure(model_to_dict(d), BookData) for d in data]
+
+    assert structure == man
+
+
 def test_unstructure():
     data = [
         {"name": "pizza", "price": Decimal("13.25"), "rate": 4},
@@ -59,6 +88,15 @@ def test_unstructure():
     structure = converter.structure(data, list[Food])
 
     assert converter.unstructure(structure, list) == data
+
+
+def test_unstructure_model(create_books):
+    data = Book.objects.all()
+
+    structure = converter.structure(data, list[BookData])
+    man = [converter.unstructure(s) for s in structure]
+
+    assert converter.unstructure(structure, list) == man
 
 
 @pytest.mark.parametrize(
