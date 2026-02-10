@@ -11,14 +11,14 @@ from django_cattrs_fields.fields import (
     FloatField,
     IntegerField,
 )
-from django_cattrs_fields.validators import forbid_falsy_values_validator
+from django_cattrs_fields.validators import forbid_falsy_numbers
 
 
 # Integer hooks
 
 
 def integer_structure(val, _) -> IntegerField:
-    forbid_falsy_values_validator(val)
+    forbid_falsy_numbers(val)
     return val
 
 
@@ -48,7 +48,7 @@ def integer_unstructure(val: IntegerField | None) -> int | None:
 
 
 def decimal_structure(val: str | Decimal, _, max_digits=None, decimal_places=None) -> DecimalField:
-    forbid_falsy_values_validator(val)
+    forbid_falsy_numbers(val)
     try:
         value = Decimal(val)
     except DecimalException:
@@ -96,7 +96,7 @@ def decimal_unstructure_str(val: DecimalField | None) -> str | None:
 
 
 def float_structure(val, _) -> FloatField:
-    forbid_falsy_values_validator(val)
+    forbid_falsy_numbers(val)
     try:
         val = float(val)
     except (ValueError, TypeError) as e:
