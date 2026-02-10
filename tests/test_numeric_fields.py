@@ -70,6 +70,19 @@ def test_structure():
     assert isinstance(structure.accurate_salary, Decimal)
 
 
+def test_structure_zero():
+    pn = {"age": 0, "salary": 0.0, "accurate_salary": "0.0"}
+
+    structure = converter.structure(pn, PeopleNumbers)
+    pn["accurate_salary"] = Decimal(pn["accurate_salary"])
+    obj = PeopleNumbers(**pn)
+
+    assert structure == obj
+    assert isinstance(structure.age, int)
+    assert isinstance(structure.salary, float)
+    assert isinstance(structure.accurate_salary, Decimal)
+
+
 def test_structure_annotated():
     pn = {"age": 25, "salary": 100.5, "accurate_salary": "10.5"}
 
