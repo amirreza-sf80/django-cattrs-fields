@@ -316,7 +316,26 @@ like django, DecimalField's params are optional, some fields may require some pa
 ## EmptyField
 `EmptyField` is useful when supporting PATCH requests.
 
-if a field doesn't receive any data and has `Empty` as its value, it will be omitted when unstructuring.
+by default EmptyField hooks are disabled, it is recommended that you [create a specific converter](https://catt.rs/en/stable/basics.html#converters-and-hooks) for when you need EmptyField hooks, 
+but if you want to use them on the converter provided by default, set `DCF_EMPTY_HOOKS` to `True` in your settings. note that this will only register the hooks for converter, not serializers (it's unlikely to use EmptyField hooks for serialization)
+
+the reason to prefer a specific hook for EmptyField use is that, to make EmptyField possible we use a `hook_factory`, these kind of hooks will run anytime you call `unstructure`, even if no EmptyField is present.
+while the overhead might be very small, it adds a layer of complexity over all your operations, so unless you are using `EmptyField`s everywhere, I recommend using a secondary converters.
+converters are relatively cheap, and the recommended way to use cattrs is to have as many of them as you need.
+
+to create a converter for EmptyField hooks:
+
+```py
+from django_cattrs_fields.converters.register_hooks import register_all_empty_unstructure_hooks
+from django_cattrs_fields.converters import converter
+
+empty_converter = converter.copy()  # or create a bare converter
+
+register_all_empty_unstructure_hooks(empty_converter)
+
+```
+
+when using EmptyField hooks, if a field doesn't receive any data and has `Empty` as its value, it will be omitted when unstructuring.
 
 ```py
 from django_cattrs_fields.fields import CharField, EmptyField, Empty
@@ -349,7 +368,7 @@ by default this package runs some validation when you are structuring your data
 but to add any custom validators you can use attrs [built-in](https://www.attrs.org/en/stable/examples.html#validators) validation mechanism.
 
 note that the validations we run are baked in structure hooks, so they will run in any situation.
-these are validations that django also runs every time you use it's data fields.
+these are validations that django also runs every time you use its data fields.
 if you need to turn this off, just create a [new converter](https://catt.rs/en/stable/basics.html#converters-and-hooks)
 
 ## File Handling
@@ -365,7 +384,7 @@ in this case our hooks will return the url of the file.
 note that this behavior is different in django and DRF
 django returns the whole `FieldFile` object (could be useful with templates), DRF is configurable, it either returns the url or the file name.
 
-if you require a different behaviour, you can change this by hooking your logic and set `DCF_FILE_HOOKS` to False in your settings file, 
+if you require a different behavior, you can change this by hooking your logic and set `DCF_FILE_HOOKS` to False in your settings file, 
 this will disable all file related hooks.
 
 

@@ -207,8 +207,6 @@ def register_structure_hooks(converter: Converter):
 
 
 def register_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook_factory(has, skip_empty)
-
     converter.register_unstructure_hook(BooleanField, boolean_unstructure)
     converter.register_unstructure_hook(CharField, char_unstructure)
     converter.register_unstructure_hook(EmailField, email_unstructure)
@@ -227,6 +225,52 @@ def register_unstructure_hooks(converter: Converter):
     converter.register_unstructure_hook(Union[SlugField, None], slug_unstructure)
     converter.register_unstructure_hook(Union[URLField, None], url_unstructure)
 
+    # File
+
+    if getattr(settings, "DCF_FILE_HOOKS", True):
+        converter.register_unstructure_hook(FileField, file_unstructure)
+        converter.register_unstructure_hook(Union[FileField, None], file_unstructure)
+
+
+def register_uuid_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(UUIDField, uuid_unstructure)
+    converter.register_unstructure_hook(Union[UUIDField, None], uuid_unstructure)
+
+
+def register_date_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(DateField, date_unstructure)
+    converter.register_unstructure_hook(Union[DateField, None], date_unstructure)
+
+
+def register_datetime_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(DateTimeField, datetime_unstructure)
+    converter.register_unstructure_hook(Union[DateTimeField, None], datetime_unstructure)
+
+
+def register_decimal_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(DecimalField, decimal_unstructure)
+    converter.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure)
+
+
+def register_time_unstructure_hooks(converter: Converter):
+    converter.register_unstructure_hook(TimeField, time_unstructure)
+    converter.register_unstructure_hook(Union[TimeField, None], time_unstructure)
+
+
+def register_all_unstructure_hooks(converter: Converter):
+    register_unstructure_hooks(converter)
+    register_uuid_unstructure_hooks(converter)
+    register_date_unstructure_hooks(converter)
+    register_datetime_unstructure_hooks(converter)
+    register_decimal_unstructure_hooks(converter)
+    register_time_unstructure_hooks(converter)
+
+
+def register_empty_unstructure_hook_factory(converter: Converter):
+    converter.register_unstructure_hook_factory(has, skip_empty)
+
+
+def register_empty_unstructure_hooks(converter: Converter):
     # Empty Unions
     converter.register_unstructure_hook(Union[BooleanField, EmptyField], empty_bool_unstructure)
     converter.register_unstructure_hook(Union[CharField, EmptyField], empty_char_unstructure)
@@ -268,46 +312,13 @@ def register_unstructure_hooks(converter: Converter):
     )
     converter.register_unstructure_hook(Union[TimeField, EmptyField], empty_time_unstructure)
 
-    # File
-
     if getattr(settings, "DCF_FILE_HOOKS", True):
-        converter.register_unstructure_hook(FileField, file_unstructure)
-        converter.register_unstructure_hook(Union[FileField, None], file_unstructure)
         converter.register_unstructure_hook(Union[FileField, EmptyField], empty_file_unstructure)
         converter.register_unstructure_hook(
             Union[FileField, EmptyField, None], empty_file_unstructure
         )
 
 
-def register_uuid_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook(UUIDField, uuid_unstructure)
-    converter.register_unstructure_hook(Union[UUIDField, None], uuid_unstructure)
-
-
-def register_date_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook(DateField, date_unstructure)
-    converter.register_unstructure_hook(Union[DateField, None], date_unstructure)
-
-
-def register_datetime_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook(DateTimeField, datetime_unstructure)
-    converter.register_unstructure_hook(Union[DateTimeField, None], datetime_unstructure)
-
-
-def register_decimal_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook(DecimalField, decimal_unstructure)
-    converter.register_unstructure_hook(Union[DecimalField, None], decimal_unstructure)
-
-
-def register_time_unstructure_hooks(converter: Converter):
-    converter.register_unstructure_hook(TimeField, time_unstructure)
-    converter.register_unstructure_hook(Union[TimeField, None], time_unstructure)
-
-
-def register_all_unstructure_hooks(converter: Converter):
-    register_unstructure_hooks(converter)
-    register_uuid_unstructure_hooks(converter)
-    register_date_unstructure_hooks(converter)
-    register_datetime_unstructure_hooks(converter)
-    register_decimal_unstructure_hooks(converter)
-    register_time_unstructure_hooks(converter)
+def register_all_empty_unstructure_hooks(converter: Converter):
+    register_empty_unstructure_hook_factory(converter)
+    register_empty_unstructure_hooks(converter)

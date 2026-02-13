@@ -1,6 +1,10 @@
+import importlib
+
+import pytest
+
 from attrs import define
 
-from django_cattrs_fields.converters import converter
+from django_cattrs_fields import converters
 from django_cattrs_fields.fields import (
     CharField,
     Empty,
@@ -15,7 +19,15 @@ class WorkerPatch:
     name: CharField | EmptyField = Empty
 
 
-def test_structure():
+@pytest.fixture
+def converter(settings):
+    settings.DCF_EMPTY_HOOKS = True
+    # need to reload to apply the new settings
+    importlib.reload(converters)
+    yield converters.converter
+
+
+def test_structure(converter):
     w = {"name": "bob", "age": 32}
 
     struct = converter.structure(w, WorkerPatch)
@@ -39,7 +51,7 @@ def test_structure():
     assert isinstance(struct.age, int)
 
 
-def test_unstructure():
+def test_unstructure(converter):
     w = {"name": "bob", "age": 32}
 
     struct = converter.structure(w, WorkerPatch)
