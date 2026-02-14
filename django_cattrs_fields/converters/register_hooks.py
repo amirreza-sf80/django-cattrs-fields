@@ -23,6 +23,7 @@ from django_cattrs_fields.fields import (
 )
 from django_cattrs_fields.fields.files import FileField
 from django_cattrs_fields.hooks import (
+    structure_model_factory,
     boolean_structure,
     boolean_structure_nullable,
     boolean_unstructure,
@@ -112,7 +113,9 @@ from django_cattrs_fields.hooks.list_hooks import list_structure_hook_factory, i
 
 
 def register_structure_hooks(converter: Converter):
+    converter.register_structure_hook_factory(has, structure_model_factory)
     converter.register_structure_hook_factory(is_list_of_attrs, list_structure_hook_factory)
+
     converter.register_structure_hook(BooleanField, boolean_structure)
     converter.register_structure_hook(CharField, char_structure)
     converter.register_structure_hook(DateField, date_structure)
