@@ -1,3 +1,15 @@
+from typing import Any, get_args, get_origin
+
+from attrs import has
+
+from django.db.models import Model
+from django.forms import model_to_dict
+
+from cattrs import Converter
+from cattrs.gen import make_dict_structure_fn
+
+from django_cattrs_fields.hooks.list_hooks import is_list_of_attrs
+
 from .bool_hooks import *
 from .char_hooks import *
 from .date_hooks import *
@@ -132,3 +144,14 @@ __all__ = (
     "uuid_structure_nullable",
     "uuid_unstructure",
 )
+
+
+def structure_model_factory(cls: Any, converter: Converter):
+    fn = make_dict_structure_fn(cls, converter)
+
+    def structure(d, cl):
+        if isinstance(d, Model):
+            d = model_to_dict(d)
+        return fn(d, cl)
+
+    return structure

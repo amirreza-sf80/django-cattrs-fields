@@ -99,8 +99,32 @@ structure = converter.structure(human, Human)  # runs structure hooks and valida
 normal_data = converter.unstructure(structure)  # runs unstructure hooks, then makes a dict similar to `human` (or what you tell it to), no validators run.
 ```
 
-### list and querysets
-when we are working with a list of multiple objects or a queryset that would contains multiple objects, we need to tell `structure` and `unstructure` that it's working with a list
+### model objects
+passing a model object to `structure` is supported.
+
+```py
+class Book(models.Model):
+    name = models.CharField()
+
+
+@define
+class BookData:
+    name: fields.CharField
+
+
+book = Book.objects.get(id=1)
+structure = converter.structure(book, BookData)
+```
+
+note that when a model object is passed to `structure`, our hooks will call `django.forms.models.model_to_dict` on it.
+if this is not desired, you can construct a dict like object and pass that to `structure`.
+
+note that this only works after data has been queried from database, and doesn't work with Querysets (for queryset look at the next section).
+
+**note:** this only works with instances of `django.models.Model` and subclasses.
+
+### list and Querysets
+when we are working with a list of multiple objects or a queryset that would contain multiple objects, we need to tell `structure` and `unstructure` that it's working with a list
 
 ```py
 @define
