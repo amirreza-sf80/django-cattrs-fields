@@ -24,3 +24,4 @@ DATABASES = {
 }
 
 ROOT_URLCONF = "tests.conf.urls"
+DCF_EMPTY_HOOKS = False
