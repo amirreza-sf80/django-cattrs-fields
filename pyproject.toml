@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-cattrs-fields"
-version = "0.0.3"
+version = "0.0.4"
 description = "django data type support for cattrs"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -34,7 +34,7 @@ classifiers = [
 
 dependencies = [
     "cattrs>=25.3.0",
-    "django>=6.0",
+    "django>=5.2",
 ]
 
 [project.optional-dependencies]
@@ -110,11 +110,13 @@ line-length = 100
 
 [tool.ruff.lint]
 select = [
-    "E", # pycodestyle
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
     "F", # Pyflakes
     "DJ", # flake8-django
     "S", # flake8-bandit
-    "D101" # undocumented-public-class
+    "D101", # undocumented-public-class
+    "T20",  # print found
 ]
 
 [tool.ruff.lint.per-file-ignores]
