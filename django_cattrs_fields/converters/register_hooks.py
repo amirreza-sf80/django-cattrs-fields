@@ -113,9 +113,6 @@ from django_cattrs_fields.hooks.list_hooks import list_structure_hook_factory, i
 
 
 def register_structure_hooks(converter: Converter):
-    converter.register_structure_hook_factory(has, structure_model_factory)
-    converter.register_structure_hook_factory(is_list_of_attrs, list_structure_hook_factory)
-
     converter.register_structure_hook(BooleanField, boolean_structure)
     converter.register_structure_hook(CharField, char_structure)
     converter.register_structure_hook(DateField, date_structure)
@@ -209,6 +206,12 @@ def register_structure_hooks(converter: Converter):
         )
 
 
+def register_model_structure_hook(converter: Converter):
+    """these hooks only make sense on a normal converter, not serializers"""
+    converter.register_structure_hook_factory(has, structure_model_factory)
+    converter.register_structure_hook_factory(is_list_of_attrs, list_structure_hook_factory)
+
+
 def register_unstructure_hooks(converter: Converter):
     converter.register_unstructure_hook(BooleanField, boolean_unstructure)
     converter.register_unstructure_hook(CharField, char_unstructure)
@@ -233,6 +236,10 @@ def register_unstructure_hooks(converter: Converter):
     if getattr(settings, "DCF_FILE_HOOKS", True):
         converter.register_unstructure_hook(FileField, file_unstructure)
         converter.register_unstructure_hook(Union[FileField, None], file_unstructure)
+
+
+# some serializers have special versions of the following hooks,
+# we register them in separate functions so we don't register these for those serializers
 
 
 def register_uuid_unstructure_hooks(converter: Converter):
@@ -269,10 +276,16 @@ def register_all_unstructure_hooks(converter: Converter):
     register_time_unstructure_hooks(converter)
 
 
+# empty hooks are meant to be used by dedicated converters,
+# not the default converter or any of the serializers
+# tho it's possible to use this with the default converter, it's not recommended
+
+
 def register_empty_unstructure_hook_factory(converter: Converter):
     converter.register_unstructure_hook_factory(has, skip_empty)
 
 
+# TODO: see if there is a better way to do this
 def register_empty_unstructure_hooks(converter: Converter):
     # Empty Unions
     converter.register_unstructure_hook(Union[BooleanField, EmptyField], empty_bool_unstructure)
