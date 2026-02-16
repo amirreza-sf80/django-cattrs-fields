@@ -10,7 +10,7 @@ def forbid_falsy_values_validator(val):
 def forbid_falsy_numbers(val):
     """since 0 is a valid value for numeric fields to have, a simple `not` check doesn't work."""
     if not val and (val != 0 or val is False):
-        raise ValueError("falsy values are not allowed")
+        raise ValueError("value is required")
 
 
 def null_char_validator(val):
