@@ -41,5 +41,8 @@ def view(request: HttpRequest) -> HttpResponseBase:
         return HttpResponse("done")
 
     b = Book.objects.last()
-    data = json_serializer.dumps(converter.structure({"pdf": b.pdf}, BookData))
+    if b:
+        data = json_serializer.dumps(converter.structure({"pdf": b.pdf}, BookData))
+    else:
+        data = None
     return HttpResponse(data)

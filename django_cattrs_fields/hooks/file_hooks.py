@@ -1,6 +1,5 @@
 from django.core.files.uploadedfile import (
     InMemoryUploadedFile,
-    SimpleUploadedFile,
     TemporaryUploadedFile,
     UploadedFile,
 )
@@ -16,9 +15,7 @@ __all__ = (
 )
 
 
-def file_structure(
-    val: InMemoryUploadedFile | TemporaryUploadedFile | SimpleUploadedFile | FieldFile | str, _t
-) -> FileField | str:
+def file_structure(val: FileField | FieldFile, _t) -> FileField | str:
     # handling file uploaded by client
     if isinstance(val, UploadedFile):
         if not hasattr(val, "name") and not hasattr(val, "size"):
@@ -38,7 +35,7 @@ def file_structure(
 
 
 def file_structure_nullable(
-    val: InMemoryUploadedFile | TemporaryUploadedFile | SimpleUploadedFile | FieldFile | str | None,
+    val: FileField | FieldFile | None,
     _t,
 ) -> FileField | str | None:
     if not val:
