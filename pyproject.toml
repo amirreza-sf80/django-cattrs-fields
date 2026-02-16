@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-cattrs-fields"
-version = "0.0.5"
+version = "0.0.6"
 description = "django data type support for cattrs"
 readme = "README.md"
 license = "BSD-3-Clause"
