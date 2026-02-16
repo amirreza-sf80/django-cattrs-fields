@@ -19,7 +19,7 @@ from django_cattrs_fields.validators import forbid_falsy_numbers
 
 def integer_structure(val, _) -> IntegerField:
     forbid_falsy_numbers(val)
-    return val
+    return int(val)
 
 
 def integer_structure_nullable(val, _) -> IntegerField | None:
